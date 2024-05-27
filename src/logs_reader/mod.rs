@@ -12,7 +12,7 @@ use regex::RegexSet;
 
 
 
-pub async fn root_reader(bounty_target:Option<String>){
+pub async fn root_reader(bounty_target:Option<Vec<String>>){
     let client:Client = Client::new();
     const ROOT_URL:&str =  "https://www.gstatic.com/ct/log_list/v3/all_logs_list.json";
     let data =  send_request(&ROOT_URL.to_string(), client.clone()).await.unwrap_or_else(|error| panic!("Unable to send request. {error}"));
@@ -20,13 +20,20 @@ pub async fn root_reader(bounty_target:Option<String>){
     let operators = get_log_sources(parsed_root).await;
     let mut tasks = Vec::new();
     let mut regex_set:RegexSet = RegexSet::empty();
-    if bounty_target.is_some(){
-        let targets = send_request(&bounty_target.unwrap(), client.clone()).await.unwrap();
-        let targets:String = "amazonaws".to_string();
-        let fix1 = targets.replace("\n", "$\n").replace(".", r#"\."#).replace("*", ".*");
-        let targets_vec = fix1.lines().collect::<Vec<_>>();
-        println!("{:?}",targets_vec);
-        regex_set = RegexSet::new(&targets_vec).expect("Failed to compile regex set");
+    if bounty_target.clone().is_some(){
+        if bounty_target.clone().unwrap()[0] == "URL"{
+            let targets = send_request(&bounty_target.unwrap()[1], client.clone()).await.unwrap();
+            let fix1 = targets.replace("\n", "$\n").replace(".", r#"\."#).replace("*", ".*");
+            let targets_vec = fix1.lines().collect::<Vec<_>>();
+            println!("{:?}",targets_vec);
+            regex_set = RegexSet::new(&targets_vec).expect("Failed to compile regex set");
+        }
+        else if bounty_target.clone().unwrap()[0] == "REGEX" {
+            let targets = &bounty_target.unwrap()[1];
+            let targets_vec = targets.lines().collect::<Vec<_>>();
+            println!("{:?}",targets_vec);
+            regex_set = RegexSet::new(&targets_vec).expect("Failed to compile regex set");
+        }
     }
 
     for (name, url) in operators {

@@ -15,4 +15,5 @@ reqwest = "0.12.4"
 # serde_json = "1.0.117"
 tokio = { version = "1.37.0", features = ["full"] }
 regex = "1.10.4"
+clap = { version = "4.5.4", features = ["derive"] }
 
