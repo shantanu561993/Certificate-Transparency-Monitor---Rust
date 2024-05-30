@@ -193,11 +193,12 @@ async fn process_operator(_name:String,url:String,client:Client,regex_set:RegexS
             let results = read_entry(&entry).await;
             if regex_set.is_empty() {
                 // println!("{:?}",results);
-                let leaf_domain = results.get("leaf_domain").unwrap_or_else("google.com");
+                let temp = vec!["google.com".to_string()];
+                let leaf_domain = results.get("leaf_domain").unwrap_or_else(|| &temp);
                 for domain in leaf_domain{
                     println!("{domain}");
                 }
-                let all_domains = results.get("all_domains").unwrap_or_else(vec!["google.com"]);
+                let all_domains = results.get("all_domains").unwrap_or_else(|| &temp);
                 for domain in all_domains{
                     println!("{domain}");
                 }
