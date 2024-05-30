@@ -85,7 +85,7 @@ async fn temp_function (url:String) {
     loop{
         match send_request_with_string(url.clone(), &client).await{
             Ok(response)=>{resp.push_str(&response); break},
-            Err(_)=>{println!("{url}");continue}
+            Err(_)=>{eprintln!("{url}");continue}
         }
     }
     let entries = read_base64_entries(resp).await.unwrap();
@@ -192,7 +192,15 @@ async fn process_operator(_name:String,url:String,client:Client,regex_set:RegexS
         for entry in entries.entries{
             let results = read_entry(&entry).await;
             if regex_set.is_empty() {
-                println!("{:?}",results);
+                // println!("{:?}",results);
+                let leaf_domain = results.get("leaf_domain").unwrap_or_else("google.com");
+                for domain in leaf_domain{
+                    println!("{domain}");
+                }
+                let all_domains = results.get("all_domains").unwrap_or_else(vec!["google.com"]);
+                for domain in all_domains{
+                    println!("{domain}");
+                }
             }
             else if !regex_set.is_empty() {
                 let all_domains = results.get("all_domains");
